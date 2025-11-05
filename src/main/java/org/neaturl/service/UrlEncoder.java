@@ -19,7 +19,7 @@ public class UrlEncoder {
     private final UrlRepository urlRepository;
 
     static {
-        AtomicInteger index = new AtomicInteger();
+        var index = new AtomicInteger();
         Stream.of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
                 .forEach(ch -> alphabet.put(index.getAndIncrement(), ch.charAt(0)));
     }
