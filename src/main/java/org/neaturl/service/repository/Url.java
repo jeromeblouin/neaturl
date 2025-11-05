@@ -2,10 +2,12 @@ package org.neaturl.service.repository;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "url")
 @Data
+@NoArgsConstructor
 public class Url {
 
     @Id

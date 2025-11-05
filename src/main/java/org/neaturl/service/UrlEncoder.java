@@ -1,27 +1,33 @@
 package org.neaturl.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.neaturl.service.repository.Url;
 import org.neaturl.service.repository.UrlRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.rmi.UnexpectedException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class UrlEncoder {
 
     private final int BASE = 62;
-    private static final Map<Integer, Character> alphabet = new HashMap<Integer, Character>();
+    private static final List<String> alphabet = new ArrayList<>();
+    private static final Map<String, Integer> alphabetIndexes = new HashMap<>();
 
     private final UrlRepository urlRepository;
 
     static {
         var index = new AtomicInteger();
-        Stream.of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-                .forEach(ch -> alphabet.put(index.getAndIncrement(), ch.charAt(0)));
+        Stream.of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split(""))
+                .forEach(ch -> {
+                    alphabet.add(ch);
+                    alphabetIndexes.put(ch, index.getAndIncrement());
+                });
     }
 
     public UrlEncoder(UrlRepository urlRepository) {
@@ -30,6 +36,7 @@ public class UrlEncoder {
 
     public String encode(String url) {
         var savedUrl = urlRepository.save(new Url(url));
+        log.debug("Saved URL entity: {}", savedUrl);
         var id = savedUrl.getId();
 
         if (id == 0) {
@@ -41,23 +48,23 @@ public class UrlEncoder {
         while (id > 0) {
             remainder = id % BASE;
             // TODO: Add map validation
-            result.append(alphabet.get((int)remainder));
+            result.append(alphabet.get((int) remainder));
             id = id / BASE;
         }
+        var encodedUrl = result.reverse().toString();
 
-        return result.reverse().toString();
+        log.debug("Encoded URL: {}", encodedUrl);
+        return encodedUrl;
     }
 
     public String decode(String encodedUrl) {
         var number = new AtomicLong();
-        var index = new AtomicInteger();
 
-        Stream.of(encodedUrl)
-                .forEach(ch -> number.set(number.get() * BASE + index.getAndIncrement()));
-
+        Stream.of(encodedUrl.split(""))
+            .forEach(ch -> number.set(number.get() * BASE + alphabetIndexes.get(ch)));
         return urlRepository
                 .findById(number.get())
                 .map(Url::getUrl)
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException(encodedUrl));
     }
 }
