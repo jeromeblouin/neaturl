@@ -1,8 +1,9 @@
 package org.neaturl.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.neaturl.service.repository.Url;
-import org.neaturl.service.repository.UrlRepository;
+import org.neaturl.service.repository.base62.Base62Url;
+import org.neaturl.service.repository.base62.Base62UrlRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -11,44 +12,45 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 @Service
+@Primary
 @Slf4j
-public class UrlEncoder {
+public class Base62UrlEncoder implements UrlEncoderStrategy {
 
     private final int BASE = 62;
-    private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Map<String, Integer> alphabetIndexes = new HashMap<>();
 
-    private final UrlRepository urlRepository;
+    private final Base62UrlRepository urlRepository;
 
     static {
-        for (int i = 0; i < alphabet.length(); i++) {
-            alphabetIndexes.put(String.valueOf(alphabet.charAt(i)), i);
+        for (int i = 0; i < ALPHABET.length(); i++) {
+            alphabetIndexes.put(String.valueOf(ALPHABET.charAt(i)), i);
         }
     }
 
-    public UrlEncoder(UrlRepository urlRepository) {
+    public Base62UrlEncoder(Base62UrlRepository urlRepository) {
         this.urlRepository = urlRepository;
     }
 
     public String encode(String url) {
-        var savedUrl = urlRepository.save(new Url(url));
+        var savedUrl = urlRepository.save(new Base62Url(url));
         log.debug("Saved URL entity: {}", savedUrl);
         var id = savedUrl.getId();
 
         if (id == 0) {
-            return String.valueOf(alphabet.charAt(0));
+            return String.valueOf(ALPHABET.charAt(0));
         }
 
         var result = new StringBuilder();
         long remainder;
         while (id > 0) {
             remainder = id % BASE;
-            result.append(alphabet.charAt((int) remainder));
+            result.append(ALPHABET.charAt((int) remainder));
             id = id / BASE;
         }
         var encodedUrl = result.reverse().toString();
 
-        log.debug("Encoded URL: {}", encodedUrl);
+        log.debug("Encoded base62 URL: {}", encodedUrl);
         return encodedUrl;
     }
 
@@ -65,7 +67,7 @@ public class UrlEncoder {
             });
         return urlRepository
                 .findById(number.get())
-                .map(Url::getUrl)
+                .map(Base62Url::getUrl)
                 .orElseThrow(() -> new InvalidEncodedUrl(encodedUrl));
     }
 }

@@ -1,18 +1,22 @@
 package org.neaturl.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.neaturl.service.UrlEncoder;
+import org.neaturl.service.InvalidEncodedUrl;
+import org.neaturl.service.UrlEncoderStrategy;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
 @Slf4j
 public class EncoderController {
 
-    private final UrlEncoder encoder;
+    private final UrlEncoderStrategy encoder;
 
-    public EncoderController(UrlEncoder encoder) {
+    public EncoderController(UrlEncoderStrategy encoder) {
         this.encoder = encoder;
     }
 
@@ -25,8 +29,12 @@ public class EncoderController {
     @GetMapping("decode")
     public ResponseEntity<String> decode(@RequestParam String url) {
         log.debug("URL to decode: {}", url);
-        var decodedUrl = encoder.decode(url);
-        log.debug("Decoded URL: {}", decodedUrl);
-        return ResponseEntity.ok(decodedUrl);
+        try {
+            var decodedUrl = encoder.decode(url);
+            log.debug("Decoded URL: {}", decodedUrl);
+            return ResponseEntity.ok(decodedUrl);
+        } catch (InvalidEncodedUrl e) {
+            return ResponseEntity.ok("Invalid encoded URL: " + url);
+        }
     }
 }

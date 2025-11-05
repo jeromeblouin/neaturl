@@ -16,6 +16,7 @@
         <postgresql.version>42.7.8</postgresql.version>
         <lombok.version>1.18.42</lombok.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <commons-codec.version>1.17.1</commons-codec.version>
     </properties>
 
     <parent>
@@ -43,6 +44,11 @@
         </dependency>
 
         <!-- Third Parties -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

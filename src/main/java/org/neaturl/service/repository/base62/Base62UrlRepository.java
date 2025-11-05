@@ -1,8 +1,8 @@
-package org.neaturl.service.repository;
+package org.neaturl.service.repository.base62;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UrlRepository extends JpaRepository<Url, Long> {
+public interface Base62UrlRepository extends JpaRepository<Base62Url, Long> {
 }

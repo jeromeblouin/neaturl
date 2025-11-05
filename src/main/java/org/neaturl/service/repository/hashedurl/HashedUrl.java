@@ -1,25 +1,25 @@
-package org.neaturl.service.repository;
+package org.neaturl.service.repository.hashedurl;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "url")
+@Table(name = "urlhashkey")
 @Data
 @NoArgsConstructor
-public class Url {
+public class HashedUrl {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     // Declare the constraints so that the schema can be auto-generated with needed constraints.
     // This also allows to validate the data before reaching the DB.
     @Column(nullable = false, unique = true)
     private String url;
 
-    public Url(String url) {
+    public HashedUrl(String hash, String url) {
+        this.id = hash;
         this.url = url;
     }
 }
