@@ -1,7 +1,6 @@
 package org.neaturl.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.neaturl.service.repository.base62.Base62Url;
@@ -12,9 +11,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Tests unitaires complets pour Base62UrlEncoder
- */
 class Base62UrlEncoderTest {
 
     private Base62UrlRepository repo;
@@ -31,7 +27,6 @@ class Base62UrlEncoderTest {
     // ------------------------------------------------------
 
     @Test
-    @DisplayName("encode() doit retourner un caractère 'a' quand id == 0")
     void encode_shouldReturnAWhenIdIsZero() {
         Base62Url entity = new Base62Url("https://example.com");
         entity.setId(0L);
@@ -45,7 +40,6 @@ class Base62UrlEncoderTest {
     }
 
     @Test
-    @DisplayName("encode() doit convertir correctement un id en Base62")
     void encode_shouldConvertIdToBase62() {
         Base62Url entity = new Base62Url("https://example.com");
         entity.setId(125L); // devrait donner "cb"
@@ -57,7 +51,6 @@ class Base62UrlEncoderTest {
     }
 
     @Test
-    @DisplayName("encode() doit sauvegarder l'URL avant d'encoder l'id")
     void encode_shouldSaveEntity() {
         Base62Url entity = new Base62Url("https://unit.test");
         entity.setId(5L);
@@ -75,7 +68,6 @@ class Base62UrlEncoderTest {
     // ------------------------------------------------------
 
     @Test
-    @DisplayName("decode() doit retourner l'URL originale pour un code valide")
     void decode_shouldReturnOriginalUrl() {
         Base62Url entity = new Base62Url("https://decode.test");
         entity.setId(125L);
@@ -88,7 +80,6 @@ class Base62UrlEncoderTest {
     }
 
     @Test
-    @DisplayName("decode() doit retourner Optional.empty() quand l'id n'existe pas")
     void decode_shouldReturnEmptyWhenNotFound() {
         when(repo.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -98,7 +89,6 @@ class Base62UrlEncoderTest {
     }
 
     @Test
-    @DisplayName("decode() doit lever InvalidEncodedUrl pour un caractère invalide")
     void decode_shouldThrowWhenInvalidCharacter() {
         assertThrows(InvalidEncodedUrl.class, () -> encoder.decode("c$"));
     }
@@ -108,7 +98,6 @@ class Base62UrlEncoderTest {
     // ------------------------------------------------------
 
     @Test
-    @DisplayName("encode() et decode() doivent être cohérents pour un même id")
     void encodeDecode_shouldBeConsistent() {
         // simulate repo.save()
         Base62Url saved = new Base62Url("https://neaturl.com/test");

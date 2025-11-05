@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.neaturl.service.repository.hashedurl.HashedUrl;
 import org.neaturl.service.repository.hashedurl.HashedUrlRepository;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,24 +14,31 @@ import java.util.Random;
 public class HashUrlEncoder implements UrlEncoderStrategy {
 
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    public static final int MAX_HASH_LENGTH = 8;
     public static final int MAX_HASH_RETRIES = 100;
 
     private final HashedUrlRepository urlRepository;
+    private final Random random;
 
     public HashUrlEncoder(HashedUrlRepository urlRepository) {
+        this(urlRepository, new Random());
+    }
+
+    HashUrlEncoder(HashedUrlRepository urlRepository, Random random) {
         this.urlRepository = urlRepository;
+        this.random = random;
     }
 
     public String encode(String url) {
-        var hash = DigestUtils.sha256Hex(url).substring(0, 8);
+        var hash = DigestUtils.sha256Hex(url).substring(0, MAX_HASH_LENGTH);
 
         int retries = 0;
-        String newHash = hash;
+        var newHash = hash;
         while (urlRepository.findById(newHash).isPresent() && retries++ < MAX_HASH_RETRIES) {
-            char randomChar = ALPHABET.charAt(new Random().nextInt(ALPHABET.length()));
-            newHash = hash + randomChar;
+            char randomChar = ALPHABET.charAt(random.nextInt(ALPHABET.length()));
+            newHash = DigestUtils.sha256Hex(hash + randomChar).substring(0, MAX_HASH_LENGTH);
         }
-        if (retries == 100) {
+        if (retries == MAX_HASH_RETRIES) {
             throw new IllegalStateException("Unable to create a unique hash for URL " + url);
         }
         hash = newHash;
