@@ -15,6 +15,8 @@ import java.util.Optional;
  * To encode, the mapped URL is progressively built by mapping characters resolved from the modulus calculation of
  * each character in the URL.
  * Each mapped URL is persisted in a database with a numeric key.
+ *
+ * NOTE: This encoder implementation is recommended over the hash one due to performance penalty cost with the hash one.
  */
 @Service
 @Primary
@@ -22,7 +24,7 @@ import java.util.Optional;
 public class Base62UrlEncoder implements UrlEncoderStrategy {
 
     private static final int BASE = 62;
-    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzA                                 BCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Map<Character, Integer> alphabetIndexes = new HashMap<>();
 
     private final Base62UrlRepository urlRepository;

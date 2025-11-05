@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Encoder implementation based on hashing algorithm.
+ * Encoded URLs calculate a hash on the URL.
+ * This solution may cause hash collisions. To compensate this issue, hashing is retried with a random
+ * character until a maximum of retries.
+ */
 @Service
 @Slf4j
 public class HashUrlEncoder implements UrlEncoderStrategy {
@@ -26,6 +32,7 @@ public class HashUrlEncoder implements UrlEncoderStrategy {
         this(urlRepository, new Random());
     }
 
+    // Used for unit testing.
     HashUrlEncoder(HashedUrlRepository urlRepository, Random random) {
         this.urlRepository = urlRepository;
         this.random = random;

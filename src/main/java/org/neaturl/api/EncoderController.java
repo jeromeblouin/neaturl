@@ -1,7 +1,6 @@
 package org.neaturl.api;
 
 import lombok.extern.slf4j.Slf4j;
-import org.neaturl.service.InvalidEncodedUrl;
 import org.neaturl.service.UrlEncoderStrategy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
