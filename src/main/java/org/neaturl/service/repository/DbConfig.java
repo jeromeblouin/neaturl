@@ -30,7 +30,7 @@ class DbConfig {
         vendorAdapter.setGenerateDdl(true);
         var factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("org.neaturl.repository");
+        factory.setPackagesToScan("org.neaturl.service.repository");
         factory.setDataSource(dataSource());
         return factory;
     }

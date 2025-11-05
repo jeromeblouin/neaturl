@@ -28,8 +28,8 @@ public class UrlEncoder {
         this.urlRepository = urlRepository;
     }
 
-    public String encode(Url url) {
-        var savedUrl = urlRepository.save(url);
+    public String encode(String url) {
+        var savedUrl = urlRepository.save(new Url(url));
         var id = savedUrl.getId();
 
         if (id == 0) {

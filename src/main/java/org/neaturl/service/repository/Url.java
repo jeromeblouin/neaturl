@@ -16,4 +16,8 @@ public class Url {
     // This also allows to validate the data before reaching the DB.
     @Column(nullable = false, unique = true)
     private String url;
+
+    public Url(String url) {
+        this.url = url;
+    }
 }
