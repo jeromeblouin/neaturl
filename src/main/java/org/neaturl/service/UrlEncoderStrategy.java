@@ -1,8 +1,10 @@
 package org.neaturl.service;
 
+import java.util.Optional;
+
 public interface UrlEncoderStrategy {
 
     String encode(String url);
 
-    String decode(String encodedUrl);
+    Optional<String> decode(String encodedUrl);
 }

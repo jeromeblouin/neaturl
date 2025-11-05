@@ -7,6 +7,7 @@ import org.neaturl.service.repository.hashedurl.HashedUrlRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -42,10 +43,9 @@ public class HashUrlEncoder implements UrlEncoderStrategy {
         return hash;
     }
 
-    public String decode(String encodedUrl) {
+    public Optional<String> decode(String encodedUrl) {
         return urlRepository
                 .findById(encodedUrl)
-                .map(HashedUrl::getUrl)
-                .orElseThrow(() -> new InvalidEncodedUrl(encodedUrl));
+                .map(HashedUrl::getUrl);
     }
 }

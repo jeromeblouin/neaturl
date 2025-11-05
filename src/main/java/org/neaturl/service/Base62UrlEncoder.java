@@ -8,23 +8,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 @Service
 @Primary
 @Slf4j
 public class Base62UrlEncoder implements UrlEncoderStrategy {
 
-    private final int BASE = 62;
+    private static final int BASE = 62;
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static final Map<String, Integer> alphabetIndexes = new HashMap<>();
+    private static final Map<Character, Integer> alphabetIndexes = new HashMap<>();
 
     private final Base62UrlRepository urlRepository;
 
     static {
         for (int i = 0; i < ALPHABET.length(); i++) {
-            alphabetIndexes.put(String.valueOf(ALPHABET.charAt(i)), i);
+            alphabetIndexes.put(ALPHABET.charAt(i), i);
         }
     }
 
@@ -42,10 +41,8 @@ public class Base62UrlEncoder implements UrlEncoderStrategy {
         }
 
         var result = new StringBuilder();
-        long remainder;
         while (id > 0) {
-            remainder = id % BASE;
-            result.append(ALPHABET.charAt((int) remainder));
+            result.append(ALPHABET.charAt((int) (id % BASE)));
             id = id / BASE;
         }
         var encodedUrl = result.reverse().toString();
@@ -54,20 +51,19 @@ public class Base62UrlEncoder implements UrlEncoderStrategy {
         return encodedUrl;
     }
 
-    public String decode(String encodedUrl) {
-        var number = new AtomicLong();
+    public Optional<String> decode(String encodedUrl) {
+        long number = 0;
 
-        Stream.of(encodedUrl.split(""))
-            .forEach(ch -> {
-                if (alphabetIndexes.containsKey(ch)) {
-                    number.set(number.get() * BASE + alphabetIndexes.get(ch));
-                } else {
-                    throw new InvalidEncodedUrl("Invalid URL: " + ch);
-                }
-            });
+        for (char c : encodedUrl.toCharArray()) {
+            var index = alphabetIndexes.get(c);
+            if (index == null) {
+                throw new InvalidEncodedUrl("Invalid URL: " + c);
+            }
+            number = number * BASE + index;
+        }
+
         return urlRepository
-                .findById(number.get())
-                .map(Base62Url::getUrl)
-                .orElseThrow(() -> new InvalidEncodedUrl(encodedUrl));
+                .findById(number)
+                .map(Base62Url::getUrl);
     }
 }

@@ -29,11 +29,11 @@ public class EncoderController {
     @GetMapping("decode")
     public ResponseEntity<String> decode(@RequestParam String url) {
         log.debug("URL to decode: {}", url);
-        try {
-            var decodedUrl = encoder.decode(url);
-            log.debug("Decoded URL: {}", decodedUrl);
-            return ResponseEntity.ok(decodedUrl);
-        } catch (InvalidEncodedUrl e) {
+        var decodedUrl = encoder.decode(url);
+        if (decodedUrl.isPresent()) {
+            log.debug("Decoded URL: {}", decodedUrl.get());
+            return ResponseEntity.ok(decodedUrl.get());
+        } else {
             return ResponseEntity.ok("Invalid encoded URL: " + url);
         }
     }
