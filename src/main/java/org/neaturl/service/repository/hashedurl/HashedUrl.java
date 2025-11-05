@@ -15,7 +15,7 @@ public class HashedUrl {
 
     // Declare the constraints so that the schema can be auto-generated with needed constraints.
     // This also allows to validate the data before reaching the DB.
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String url;
 
     public HashedUrl(String hash, String url) {
