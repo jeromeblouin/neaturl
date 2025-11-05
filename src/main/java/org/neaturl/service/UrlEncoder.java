@@ -5,9 +5,8 @@ import org.neaturl.service.repository.Url;
 import org.neaturl.service.repository.UrlRepository;
 import org.springframework.stereotype.Service;
 
-import java.rmi.UnexpectedException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
@@ -16,18 +15,15 @@ import java.util.stream.Stream;
 public class UrlEncoder {
 
     private final int BASE = 62;
-    private static final List<String> alphabet = new ArrayList<>();
+    private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Map<String, Integer> alphabetIndexes = new HashMap<>();
 
     private final UrlRepository urlRepository;
 
     static {
-        var index = new AtomicInteger();
-        Stream.of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split(""))
-                .forEach(ch -> {
-                    alphabet.add(ch);
-                    alphabetIndexes.put(ch, index.getAndIncrement());
-                });
+        for (int i = 0; i < alphabet.length(); i++) {
+            alphabetIndexes.put(String.valueOf(alphabet.charAt(i)), i);
+        }
     }
 
     public UrlEncoder(UrlRepository urlRepository) {
@@ -40,15 +36,14 @@ public class UrlEncoder {
         var id = savedUrl.getId();
 
         if (id == 0) {
-            return String.valueOf(alphabet.get(0));
+            return String.valueOf(alphabet.charAt(0));
         }
 
         var result = new StringBuilder();
         long remainder;
         while (id > 0) {
             remainder = id % BASE;
-            // TODO: Add map validation
-            result.append(alphabet.get((int) remainder));
+            result.append(alphabet.charAt((int) remainder));
             id = id / BASE;
         }
         var encodedUrl = result.reverse().toString();
@@ -61,10 +56,16 @@ public class UrlEncoder {
         var number = new AtomicLong();
 
         Stream.of(encodedUrl.split(""))
-            .forEach(ch -> number.set(number.get() * BASE + alphabetIndexes.get(ch)));
+            .forEach(ch -> {
+                if (alphabetIndexes.containsKey(ch)) {
+                    number.set(number.get() * BASE + alphabetIndexes.get(ch));
+                } else {
+                    throw new InvalidEncodedUrl("Invalid URL: " + ch);
+                }
+            });
         return urlRepository
                 .findById(number.get())
                 .map(Url::getUrl)
-                .orElseThrow(() -> new IllegalArgumentException(encodedUrl));
+                .orElseThrow(() -> new InvalidEncodedUrl(encodedUrl));
     }
 }
