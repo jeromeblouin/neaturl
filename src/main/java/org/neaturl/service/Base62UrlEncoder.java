@@ -10,13 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Encoder implementation based on the Base62 algorithm.
+ * To encode, the mapped URL is progressively built by mapping characters resolved from the modulus calculation of
+ * each character in the URL.
+ * Each mapped URL is persisted in a database with a numeric key.
+ */
 @Service
 @Primary
 @Slf4j
 public class Base62UrlEncoder implements UrlEncoderStrategy {
 
     private static final int BASE = 62;
-    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzA                                 BCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final Map<Character, Integer> alphabetIndexes = new HashMap<>();
 
     private final Base62UrlRepository urlRepository;
@@ -31,6 +37,11 @@ public class Base62UrlEncoder implements UrlEncoderStrategy {
         this.urlRepository = urlRepository;
     }
 
+    /**
+     * Encode the passed in URL
+     * @param url To encode.
+     * @return The encoded URL.
+     */
     public String encode(String url) {
         var savedUrl = urlRepository.save(new Base62Url(url));
         log.debug("Saved URL entity: {}", savedUrl);
@@ -51,6 +62,11 @@ public class Base62UrlEncoder implements UrlEncoderStrategy {
         return encodedUrl;
     }
 
+    /**
+     * Decode the passed in encoded URL.
+     * @param encodedUrl To decode.
+     * @return The decoded URL or Optional.empty() is no result was found in the database.
+     */
     public Optional<String> decode(String encodedUrl) {
         long number = 0;
 
