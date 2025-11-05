@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.neaturl.service.repository.hashedurl.HashedUrl;
 import org.neaturl.service.repository.hashedurl.HashedUrlRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class HashUrlEncoder implements UrlEncoderStrategy {
     private final HashedUrlRepository urlRepository;
     private final Random random;
 
+    @Autowired
     public HashUrlEncoder(HashedUrlRepository urlRepository) {
         this(urlRepository, new Random());
     }
