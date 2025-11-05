@@ -1,9 +1,8 @@
 package org.neaturl.service;
 
-import org.neaturl.repository.UrlRepository;
+import org.neaturl.service.repository.Url;
+import org.neaturl.service.repository.UrlRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UrlEncoder {
@@ -14,11 +13,9 @@ public class UrlEncoder {
         this.urlRepository = urlRepository;
     }
 
-    public String save(String url) {
-        return urlRepository.save(url);
-    }
+    public String encode(Url url) {
+        var savedUrl = urlRepository.save(url);
 
-    public Optional<String> get(long id) {
-        return urlRepository.findById(id);
+        return "";
     }
 }
