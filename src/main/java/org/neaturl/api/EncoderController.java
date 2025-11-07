@@ -3,6 +3,7 @@ package org.neaturl.api;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.neaturl.service.EncodingException;
 import org.neaturl.service.UrlEncoderStrategy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -35,12 +36,16 @@ public class EncoderController {
     @GetMapping("decode")
     public ResponseEntity<String> decode(@RequestParam @NotBlank String url) {
         log.debug("URL to decode: {}", url);
-        var decodedUrl = encoder.decode(url);
-        if (decodedUrl.isPresent()) {
-            log.debug("Decoded URL: {}", decodedUrl.get());
-            return ResponseEntity.ok(decodedUrl.get());
-        } else {
-            return ResponseEntity.ok("Invalid encoded URL: " + url);
+        try {
+            var decodedUrl = encoder.decode(url);
+            if (decodedUrl.isPresent()) {
+                log.debug("Decoded URL: {}", decodedUrl.get());
+                return ResponseEntity.ok(decodedUrl.get());
+            } else {
+                return ResponseEntity.ok("Invalid encoded URL: " + url);
+            }
+        } catch (EncodingException e) {
+            return ResponseEntity.internalServerError().body("An unexpected error occurred. Please try again later.");
         }
     }
 }

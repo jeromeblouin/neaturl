@@ -90,7 +90,7 @@ class Base62UrlEncoderTest {
 
     @Test
     void decode_shouldThrowWhenInvalidCharacter() {
-        assertThrows(InvalidEncodedUrl.class, () -> encoder.decode("c$"));
+        assertThrows(EncodingException.class, () -> encoder.decode("c$"));
     }
 
     // ------------------------------------------------------
@@ -99,17 +99,14 @@ class Base62UrlEncoderTest {
 
     @Test
     void encodeDecode_shouldBeConsistent() {
-        // simulate repo.save()
         Base62Url saved = new Base62Url("https://neaturl.com/test");
         saved.setId(999L);
         when(repo.save(any())).thenReturn(saved);
+        when(repo.findById(saved.getId()))
+                .thenReturn(Optional.of(saved));
 
         String encoded = encoder.encode("https://neaturl.com/test");
         assertNotNull(encoded);
-
-        // simulate repo.findById()
-        when(repo.findById(saved.getId()))
-                .thenReturn(Optional.of(saved));
 
         Optional<String> decoded = encoder.decode(encoded);
         assertTrue(decoded.isPresent());
