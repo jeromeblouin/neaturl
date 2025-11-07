@@ -17,6 +17,7 @@
         <lombok.version>1.18.42</lombok.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <commons-codec.version>1.17.1</commons-codec.version>
+        <commons-validator.version>1.10.0</commons-validator.version>
     </properties>
 
     <parent>

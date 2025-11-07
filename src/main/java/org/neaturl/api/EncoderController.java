@@ -42,7 +42,7 @@ public class EncoderController {
                 log.debug("Decoded URL: {}", decodedUrl.get());
                 return ResponseEntity.ok(decodedUrl.get());
             } else {
-                return ResponseEntity.ok("Invalid encoded URL: " + url);
+                return ResponseEntity.ok("Invalid encoded URL.");
             }
         } catch (EncodingException e) {
             return ResponseEntity.internalServerError().body("An unexpected error occurred. Please try again later.");
